@@ -74,35 +74,24 @@ Open <http://127.0.0.1:8000/>. The dashboard is the single entry point; the
 The viewer can also run standalone for UI development with `npm run dev` from
 `heart3d`; predictions are connected when it is embedded in the dashboard.
 
-## Deploy with GitHub Pages and Render
+## Free GitHub Pages deployment
 
-GitHub Pages serves static files; it cannot run the FastAPI app or load the
-trained models. Deploy the dashboard/viewer to Pages and the API to Render:
+The dashboard, 3D viewer, and predictions run as static files on GitHub Pages.
+The four fitted logistic-regression models are exported to browser-readable
+weights, so visitors do not need a separate API service or a running computer.
 
-1. In Render, create a Blueprint from this repository and use `render.yaml`.
-   It requests the Free web-service plan. Set `CORS_ORIGINS` to the Pages
-   **origin** (scheme and host only), such as `https://your-user.github.io`.
-   For a custom domain, use that domain's origin.
-2. After Render deploys, copy the service URL, such as
-   `https://cardioscope-api.onrender.com`.
-3. In the GitHub repository, go to **Settings → Secrets and variables →
-   Actions → Variables** and add the repository variable
-   `CARDIOSCOPE_API_URL` with the Render service URL.
-4. In **Settings → Pages**, select **GitHub Actions** as the deployment source.
-   Push to the `main` branch (or run the Pages workflow manually). The workflow
-   builds and tests the viewer, puts it beside the dashboard, and configures
-   the API URL.
+In **Settings → Pages**, select **GitHub Actions** as the deployment source.
+Push to `main` or run the Pages workflow manually. The workflow builds the
+viewer, tests the browser prediction code, and publishes all required static
+files.
 
-The Pages workflow intentionally fails if `CARDIOSCOPE_API_URL` is missing, so
-the dashboard cannot deploy with its input fields disconnected. `CORS_ORIGINS`
-must exactly match the Pages origin; do not include the project path or a
-trailing slash. The frontend uses relative viewer paths, so both user-site and
-project-site Pages URLs work. For local FastAPI use, `config.js` has an empty
-API URL and the dashboard uses the same-origin API.
+After retraining with `python train_model.py`, regenerate the static inference
+weights with `python export_browser_model.py`. The Pages workflow uses relative
+paths, so both user-site and project-site URLs work.
 
-The Render service loads the model artifacts in `models/`; confirm that the
-dataset and derived-artifact redistribution terms noted above permit your
-deployment before making the model available publicly.
+`app.py` and `render.yaml` remain available for optional API hosting, but are
+not required for the free GitHub Pages deployment. Confirm that dataset and
+derived-artifact redistribution terms noted above permit public hosting.
 
 ## Architecture and files
 
