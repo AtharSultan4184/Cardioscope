@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: cardioscope-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: CORS_ORIGINS
+        sync: false

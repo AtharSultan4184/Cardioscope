@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+_site/
+heart3d/node_modules/
+heart3d/dist/

@@ -1,0 +1,71 @@
+{
+  "records": 303,
+  "split": "Each target: stratified 80/20 holdout, random_state=42",
+  "targets": {
+    "CAD": {
+      "target_column": "Cath",
+      "train_records": 242,
+      "test_records": 61,
+      "class_counts": {
+        "CAD": 216,
+        "Normal": 87
+      },
+      "metrics": {
+        "accuracy": 0.8032786885245902,
+        "precision": 0.8974358974358975,
+        "recall": 0.813953488372093,
+        "f1": 0.8536585365853658,
+        "roc_auc": 0.8901808785529717
+      }
+    },
+    "LAD": {
+      "target_column": "LAD",
+      "train_records": 242,
+      "test_records": 61,
+      "class_counts": {
+        "Stenotic": 177,
+        "Normal": 126
+      },
+      "metrics": {
+        "accuracy": 0.7377049180327869,
+        "precision": 0.7941176470588235,
+        "recall": 0.75,
+        "f1": 0.7714285714285715,
+        "roc_auc": 0.8288888888888888
+      }
+    },
+    "LCX": {
+      "target_column": "LCX",
+      "train_records": 242,
+      "test_records": 61,
+      "class_counts": {
+        "Stenotic": 119,
+        "Normal": 184
+      },
+      "metrics": {
+        "accuracy": 0.5901639344262295,
+        "precision": 0.4827586206896552,
+        "recall": 0.5833333333333334,
+        "f1": 0.5283018867924528,
+        "roc_auc": 0.6418918918918919
+      }
+    },
+    "RCA": {
+      "target_column": "RCA",
+      "train_records": 242,
+      "test_records": 61,
+      "class_counts": {
+        "Stenotic": 114,
+        "Normal": 189
+      },
+      "metrics": {
+        "accuracy": 0.7213114754098361,
+        "precision": 0.6363636363636364,
+        "recall": 0.6086956521739131,
+        "f1": 0.6222222222222222,
+        "roc_auc": 0.7391304347826086
+      }
+    }
+  },
+  "note": "Small single holdout; estimates are educational and not clinical validation."
+}

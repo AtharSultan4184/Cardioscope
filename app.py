@@ -1,11 +1,13 @@
 from contextlib import asynccontextmanager
 import json
+import os
 from pathlib import Path
 
 import joblib
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -41,6 +43,20 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="CardioScope educational prototype", lifespan=lifespan)
+cors_origins = [
+    origin.strip()
+    for origin in os.environ.get(
+        "CORS_ORIGINS",
+        "http://localhost:8000,http://127.0.0.1:8000",
+    ).split(",")
+    if origin.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)
 app.mount("/heart3d", StaticFiles(directory=HEART3D_DIST, html=True), name="heart3d")
 
 

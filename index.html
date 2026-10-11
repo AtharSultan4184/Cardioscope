@@ -172,7 +172,7 @@
           </div>
           <div id="viewer" aria-label="Rotatable three-dimensional heart and coronary arteries">
             <iframe id="viewer-frame" title="Interactive heart and coronary artery viewer"
-              src="/heart3d/?embed=1"></iframe>
+              src="./heart3d/?embed=1"></iframe>
           </div>
           <div class="vessel-list" aria-label="Vessel prediction status">
             <button class="vessel-button" type="button" data-vessel="LAD" aria-pressed="false">
@@ -221,7 +221,10 @@
       <a href="https://skfb.ly/oDKZq">CC BY 4.0</a>; converted to a static mesh with added artery overlays.
     </footer>
 
+    <script src="./config.js"></script>
     <script type="module">
+      const API_BASE_URL = (window.CARDIOSCOPE_API_BASE_URL || "").replace(/\/+$/, "");
+      const apiUrl = path => `${API_BASE_URL}${path}`;
       const form = document.querySelector("#patient-form");
       const groupsElement = document.querySelector("#input-groups");
       const messageElement = document.querySelector("#message");
@@ -379,8 +382,8 @@
 
       async function loadDashboard() {
         const [featureResponse, metricsResponse] = await Promise.all([
-          fetch("/api/features"),
-          fetch("/api/metrics")
+          fetch(apiUrl("/api/features")),
+          fetch(apiUrl("/api/metrics"))
         ]);
         if (!featureResponse.ok || !metricsResponse.ok) {
           throw new Error("Could not load trained model artifacts. Check the server output.");
@@ -403,7 +406,7 @@
           }
         }
         try {
-          const response = await fetch("/api/predict", {
+          const response = await fetch(apiUrl("/api/predict"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ features: values })
