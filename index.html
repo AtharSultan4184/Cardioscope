@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CardioScope | Educational prototype</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: #e8edf3;
+        background: #0e1217;
+        font-synthesis: none;
+      }
+
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      button, input, select { font: inherit; }
+      button { cursor: pointer; }
+      header, main { width: min(1380px, calc(100% - 32px)); margin: auto; }
+      header { padding: 24px 0 16px; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { margin-bottom: 4px; font-size: clamp(1.5rem, 3vw, 2.1rem); }
+      h2 { font-size: 1.1rem; }
+      h3 { font-size: 0.95rem; }
+      .muted { color: #9aa7b5; }
+      .safety {
+        margin-top: 18px;
+        padding: 13px 16px;
+        border: 1px solid #8a6417;
+        border-radius: 12px;
+        background: #3a2a00;
+        color: #ffdf9a;
+        font-weight: 650;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(310px, 0.95fr) minmax(480px, 1.25fr);
+        gap: 18px;
+        align-items: start;
+        padding-bottom: 32px;
+      }
+      .card {
+        border: 1px solid #273140;
+        border-radius: 16px;
+        background: #161c24;
+        box-shadow: 0 6px 24px #00000026;
+      }
+      .inputs { padding: 20px; }
+      .input-groups { display: grid; gap: 8px; }
+      details { border: 1px solid #273140; border-radius: 10px; }
+      summary { padding: 12px; font-weight: 700; cursor: pointer; }
+      .fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 0 12px 12px;
+      }
+      label { display: grid; gap: 5px; font-size: 0.82rem; font-weight: 650; }
+      input, select {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid #364353;
+        border-radius: 7px;
+        padding: 7px 9px;
+        color: #e8edf3;
+        background: #10161e;
+      }
+      input:focus, select:focus, button:focus-visible {
+        outline: 3px solid #75bbf380;
+        outline-offset: 1px;
+      }
+      .actions { display: flex; gap: 10px; margin-top: 14px; }
+      .primary, .secondary, .vessel-button {
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-weight: 700;
+      }
+      .primary { color: #f5fbfc; background: #126e82; }
+      .primary:hover { background: #0e5c6d; }
+      .secondary { color: #d7e2ec; background: #26313e; }
+      .results { display: grid; gap: 16px; }
+      .viewer-card { overflow: hidden; }
+      .viewer-head { display: flex; justify-content: space-between; gap: 12px; padding: 18px 18px 0; }
+      #viewer { position: relative; height: 560px; background: #0e1217; }
+      #viewer iframe { display: block; width: 100%; height: 100%; border: 0; }
+      .viewer-hint { position: absolute; right: 12px; bottom: 10px; color: #597185; font-size: 0.75rem; pointer-events: none; }
+      .viewer-hint { position: absolute; right: 12px; bottom: 10px; color: #9aa7b5; font-size: 0.75rem; pointer-events: none; }
+      .vessel-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; padding: 14px 18px 18px; }
+      .vessel-button {
+        border: 1px solid #364353;
+        border-radius: 0;
+        color: #e8edf3;
+        background: #202a36;
+      }
+      .vessel-button:first-child { border-radius: 8px 0 0 8px; }
+      .vessel-button:last-child { border-radius: 0 8px 8px 0; }
+      .vessel-button + .vessel-button { border-left: 0; }
+      .vessel-button[aria-pressed="true"] { border-color: #4da3ff; box-shadow: inset 0 0 0 1px #4da3ff; }
+      .vessel-status { display: block; margin-top: 4px; color: #d7bd78; font-size: 0.74rem; font-weight: 600; }
+      .dashboard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 18px; }
+      .score {
+        min-height: 115px;
+        padding: 14px;
+        border: 1px solid #273140;
+        border-radius: 11px;
+        background: #121820;
+      }
+      .score strong { display: block; margin: 8px 0; font-size: 1.5rem; }
+      .score p { margin-bottom: 0; font-size: 0.82rem; }
+      .score-wide { grid-column: 1 / -1; }
+      .bar { height: 8px; margin-top: 10px; overflow: hidden; border-radius: 8px; background: #2a3542; }
+      .bar span { display: block; width: 0; height: 100%; border-radius: inherit; background: #168c83; transition: width 250ms ease; }
+      #explanation { margin: 0; padding: 0 18px 18px; }
+      #explanation-list { display: grid; gap: 7px; padding: 0; list-style: none; }
+      #explanation-list li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #273140; padding: 7px 0; font-size: 0.85rem; }
+      #metrics { display: grid; gap: 10px; padding: 0 18px 18px; }
+      .metric-target { padding: 10px; border: 1px solid #273140; border-radius: 8px; background: #121820; }
+      .metric-target h4 { margin: 0 0 8px; }
+      .metric-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+      .metric { border-radius: 8px; padding: 10px 7px; text-align: center; background: #202a36; }
+      .metric span { display: block; font-size: 0.72rem; color: #9aa7b5; }
+      .metric strong { display: block; margin-top: 4px; font-size: 0.9rem; }
+      .notice { margin: 0 18px 16px; border: 1px solid #273140; border-radius: 9px; padding: 11px 12px; background: #121820; color: #b3bfcb; font-size: 0.82rem; }
+      #message { min-height: 1.25rem; margin: 12px 0 0; color: #ff9d91; font-size: 0.88rem; }
+      footer { padding: 0 0 26px; font-size: 0.8rem; }
+      @media (max-width: 900px) {
+        .layout { grid-template-columns: 1fr; }
+        #viewer { height: 500px; }
+      }
+      @media (max-width: 520px) {
+        header, main { width: min(100% - 20px, 1380px); }
+        .fields, .dashboard { grid-template-columns: 1fr; }
+        .score-wide { grid-column: auto; }
+        .metric-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        #viewer { height: 420px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>CardioScope</h1>
+      <p class="muted">Clinical-feature CAD and vessel models with an interactive 3D heart view</p>
+      <div class="safety">
+        Educational decision-support prototype only. Not a diagnosis, not clinically validated,
+        and never a substitute for clinician assessment or formal diagnostic imaging.
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card inputs" aria-labelledby="inputs-title">
+        <h2 id="inputs-title">Patient measurements</h2>
+        <p class="muted">Enter available values. Blank fields are imputed from training data.</p>
+        <form id="patient-form">
+          <div id="input-groups" class="input-groups"><p>Loading model features…</p></div>
+          <div class="actions">
+            <button class="primary" type="submit">Estimate CAD score</button>
+            <button class="secondary" type="reset">Clear</button>
+          </div>
+          <p id="message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="results" aria-label="Prediction results">
+        <section class="card viewer-card">
+          <div class="viewer-head">
+            <div>
+              <h2>Interactive anatomy</h2>
+              <p class="muted">Coronary paths are schematic; colors show model estimates, not lesion locations.</p>
+            </div>
+          </div>
+          <div id="viewer" aria-label="Rotatable three-dimensional heart and coronary arteries">
+            <iframe id="viewer-frame" title="Interactive heart and coronary artery viewer"
+              src="/heart3d/?embed=1"></iframe>
+          </div>
+          <div class="vessel-list" aria-label="Vessel prediction status">
+            <button class="vessel-button" type="button" data-vessel="LAD" aria-pressed="false">
+              LAD <span class="vessel-status">Awaiting prediction</span>
+            </button>
+            <button class="vessel-button" type="button" data-vessel="LCX" aria-pressed="false">
+              LCX <span class="vessel-status">Awaiting prediction</span>
+            </button>
+            <button class="vessel-button" type="button" data-vessel="RCA" aria-pressed="false">
+              RCA <span class="vessel-status">Awaiting prediction</span>
+            </button>
+          </div>
+          <p id="vessel-detail" class="notice">Submit patient measurements to display the model's vessel stenosis estimates.</p>
+        </section>
+
+        <section class="card">
+          <div class="dashboard">
+            <article class="score score-wide">
+              <h3>Overall CAD model score</h3>
+              <strong id="cad-probability">—</strong>
+              <p id="cad-status" class="muted">Enter measurements to calculate a score.</p>
+              <div class="bar" aria-hidden="true"><span id="cad-bar"></span></div>
+            </article>
+            <article class="score score-wide">
+              <h3>Selected region</h3>
+              <p id="selection-detail" class="muted">Select LAD, LCX, or RCA in the viewer or above.</p>
+            </article>
+          </div>
+          <div id="explanation">
+            <h3>CAD score contributions</h3>
+            <p class="muted">Logistic-model feature contributions (log-odds scale), not causal effects.</p>
+            <ul id="explanation-list"><li class="muted">Prediction explanation will appear here.</li></ul>
+          </div>
+          <div>
+            <h3 style="padding: 0 18px;">Holdout evaluation</h3>
+            <div id="metrics"><p class="muted">Loading metrics…</p></div>
+          </div>
+          <p id="model-note" class="notice">Model evaluation is loading.</p>
+        </section>
+      </section>
+    </main>
+
+    <footer class="muted">
+      Vessel colors show model probabilities, not lesion locations. The artery paths are schematic overlays,
+      not patient-specific anatomy. 3D model: “Human_heart_3d_model” by marxtrax,
+      <a href="https://skfb.ly/oDKZq">CC BY 4.0</a>; converted to a static mesh with added artery overlays.
+    </footer>
+
+    <script type="module">
+      const form = document.querySelector("#patient-form");
+      const groupsElement = document.querySelector("#input-groups");
+      const messageElement = document.querySelector("#message");
+      const selectionDetail = document.querySelector("#selection-detail");
+      const metricsElement = document.querySelector("#metrics");
+      const viewerFrame = document.querySelector("#viewer-frame");
+      let schema;
+      let selectedVessel = null;
+      let latestPrediction = null;
+
+      const groupRules = [
+        ["Demographics", new Set(["Age", "Weight", "Length", "Sex", "BMI"])],
+        ["History and examination", new Set([
+          "DM", "HTN", "Current Smoker", "EX-Smoker", "FH", "Obesity", "CRF",
+          "CVA", "Airway disease", "Thyroid Disease", "CHF", "DLP", "BP", "PR",
+          "Edema", "Weak Peripheral Pulse", "Lung rales", "Systolic Murmur",
+          "Diastolic Murmur", "Typical Chest Pain", "Dyspnea", "Function Class",
+          "Atypical", "Nonanginal", "Exertional CP", "LowTH Ang"
+        ])],
+        ["ECG", new Set([
+          "Q Wave", "St Elevation", "St Depression", "Tinversion", "LVH",
+          "Poor R Progression", "BBB"
+        ])],
+        ["Laboratory", new Set([
+          "FBS", "CR", "TG", "LDL", "HDL", "BUN", "ESR", "HB", "K", "Na",
+          "WBC", "Lymph", "Neut", "PLT"
+        ])],
+        ["Echocardiography", new Set(["EF-TTE", "Region RWMA", "VHD"])]
+      ];
+
+      function groupFor(name) {
+        return groupRules.find(([, names]) => names.has(name))?.[0] ?? "Other measurements";
+      }
+
+      function addField(feature) {
+        const label = document.createElement("label");
+        label.append(document.createTextNode(feature.name));
+        let input;
+        if (feature.kind === "category") {
+          input = document.createElement("select");
+          const blank = new Option("Leave blank", "");
+          input.add(blank);
+          feature.options.forEach(value => input.add(new Option(value, value)));
+        } else {
+          input = document.createElement("input");
+          input.type = "number";
+          input.step = "any";
+          input.placeholder = "Optional";
+        }
+        input.name = feature.name;
+        label.append(input);
+        return label;
+      }
+
+      function renderForm(features) {
+        const buckets = new Map();
+        for (const feature of features) {
+          const group = groupFor(feature.name);
+          if (!buckets.has(group)) buckets.set(group, []);
+          buckets.get(group).push(feature);
+        }
+        groupsElement.replaceChildren();
+        for (const [title, fields] of buckets) {
+          const details = document.createElement("details");
+          if (title === "Demographics" || title === "History and examination") {
+            details.open = true;
+          }
+          const summary = document.createElement("summary");
+          summary.textContent = `${title} (${fields.length})`;
+          const fieldGrid = document.createElement("div");
+          fieldGrid.className = "fields";
+          fields.forEach(feature => fieldGrid.append(addField(feature)));
+          details.append(summary, fieldGrid);
+          groupsElement.append(details);
+        }
+      }
+
+      function displayMetrics(data) {
+        metricsElement.replaceChildren();
+        for (const [target, summary] of Object.entries(data.targets)) {
+          const group = document.createElement("section");
+          group.className = "metric-target";
+          const heading = document.createElement("h4");
+          heading.textContent = target === "CAD" ? "Overall CAD" : `${target} stenosis`;
+          const grid = document.createElement("div");
+          grid.className = "metric-list";
+          for (const [name, value] of Object.entries(summary.metrics)) {
+            const item = document.createElement("div");
+            item.className = "metric";
+            const label = document.createElement("span");
+            label.textContent = name.replace("_", " ").toUpperCase();
+            const score = document.createElement("strong");
+            score.textContent = `${(value * 100).toFixed(1)}%`;
+            item.append(label, score);
+            grid.append(item);
+          }
+          group.append(heading, grid);
+          metricsElement.append(group);
+        }
+        document.querySelector("#model-note").textContent =
+          `${data.records} records · ${data.split}. ${data.note}`;
+      }
+
+      function displayExplanation(items) {
+        const list = document.querySelector("#explanation-list");
+        list.replaceChildren();
+        if (!items.length) {
+          list.innerHTML = '<li class="muted">No non-zero feature contributions for this entry.</li>';
+          return;
+        }
+        for (const item of items) {
+          const row = document.createElement("li");
+          const direction = item.direction === "increases" ? "+" : "−";
+          row.innerHTML = `<span>${item.feature} ${item.direction} CAD score</span><strong>${direction}${Math.abs(item.contribution).toFixed(3)}</strong>`;
+          list.append(row);
+        }
+      }
+
+      function setCadScore(result) {
+        const percent = (result.probability * 100).toFixed(1);
+        document.querySelector("#cad-probability").textContent = `${percent}%`;
+        document.querySelector("#cad-status").textContent =
+          `Model class at a 0.50 threshold: ${result.predicted_status}`;
+        document.querySelector("#cad-bar").style.width = `${percent}%`;
+      }
+
+      function postViewerMessage(message) {
+        viewerFrame.contentWindow?.postMessage(message, window.location.origin);
+      }
+
+      function updateVesselStatus(result) {
+        document.querySelectorAll("[data-vessel]").forEach(button => {
+          const estimate = result?.vessels?.[button.dataset.vessel];
+          button.querySelector(".vessel-status").textContent =
+            estimate?.available && Number.isFinite(estimate.probability)
+              ? `${(estimate.probability * 100).toFixed(1)}% stenosis`
+              : "Awaiting prediction";
+        });
+        document.querySelector("#vessel-detail").textContent = result
+          ? "Vessel probabilities are model estimates from the entered clinical measurements; they do not identify lesion locations."
+          : "Submit patient measurements to display the model's vessel stenosis estimates.";
+      }
+
+      function selectVessel(name) {
+        selectedVessel = name;
+        document.querySelectorAll("[data-vessel]").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.vessel === name));
+        });
+        const estimate = latestPrediction?.vessels?.[name];
+        selectionDetail.textContent = estimate?.available
+          ? `${name}: ${(estimate.probability * 100).toFixed(1)}% predicted stenosis probability; model class: ${estimate.predicted_status}.`
+          : "Run a prediction to see this vessel's estimated stenosis probability.";
+        postViewerMessage({ type: "cardioscope:select-vessel", vessel: name });
+      }
+
+      async function loadDashboard() {
+        const [featureResponse, metricsResponse] = await Promise.all([
+          fetch("/api/features"),
+          fetch("/api/metrics")
+        ]);
+        if (!featureResponse.ok || !metricsResponse.ok) {
+          throw new Error("Could not load trained model artifacts. Check the server output.");
+        }
+        schema = await featureResponse.json();
+        renderForm(schema.features);
+        displayMetrics(await metricsResponse.json());
+      }
+
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        messageElement.textContent = "";
+        const values = {};
+        for (const feature of schema.features) {
+          const field = form.elements.namedItem(feature.name);
+          if (feature.kind === "number") {
+            values[feature.name] = field.value === "" ? null : Number(field.value);
+          } else {
+            values[feature.name] = field.value || null;
+          }
+        }
+        try {
+          const response = await fetch("/api/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ features: values })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.detail ?? "Prediction failed.");
+          latestPrediction = result;
+          setCadScore(result.cad);
+          displayExplanation(result.explanation);
+          updateVesselStatus(result);
+          postViewerMessage({
+            type: "cardioscope:prediction",
+            vessels: result.vessels
+          });
+          messageElement.textContent =
+            `Predictions updated (${Object.values(values).filter(value => value !== null).length}/${schema.features.length} measurements entered; blanks imputed).`;
+          selectVessel(selectedVessel ?? "LAD");
+        } catch (error) {
+          messageElement.textContent = error instanceof Error ? error.message : "Prediction failed.";
+        }
+      });
+
+      form.addEventListener("reset", () => {
+        latestPrediction = null;
+        messageElement.textContent = "";
+        document.querySelector("#cad-probability").textContent = "—";
+        document.querySelector("#cad-status").textContent =
+          "Enter measurements to calculate a score.";
+        document.querySelector("#cad-bar").style.width = "0";
+        updateVesselStatus(null);
+        postViewerMessage({ type: "cardioscope:clear-prediction" });
+        if (selectedVessel) selectVessel(selectedVessel);
+        displayExplanation([]);
+      });
+
+      window.addEventListener("message", event => {
+        if (event.origin !== window.location.origin || event.source !== viewerFrame.contentWindow) {
+          return;
+        }
+        if (event.data?.type === "cardioscope:viewer-ready") {
+          if (latestPrediction) {
+            postViewerMessage({
+              type: "cardioscope:prediction",
+              vessels: latestPrediction.vessels
+            });
+          }
+          if (selectedVessel) {
+            postViewerMessage({ type: "cardioscope:select-vessel", vessel: selectedVessel });
+          }
+          return;
+        }
+        if (
+          event.data?.type === "cardioscope:vessel-selected" &&
+          ["LAD", "LCX", "RCA", null].includes(event.data.vessel)
+        ) {
+          if (event.data.vessel) selectVessel(event.data.vessel);
+          else {
+            selectedVessel = null;
+            document.querySelectorAll("[data-vessel]").forEach(button => {
+              button.setAttribute("aria-pressed", "false");
+            });
+            selectionDetail.textContent = "Select a vessel in the 3D viewer or above.";
+          }
+        }
+      });
+
+      document.querySelectorAll("[data-vessel]").forEach(button => {
+        button.addEventListener("click", () => selectVessel(button.dataset.vessel));
+      });
+
+      loadDashboard().catch(error => {
+        groupsElement.textContent = "Unable to load the model input schema.";
+        messageElement.textContent = error.message;
+      });
+    </script>
+  </body>
+</html>
