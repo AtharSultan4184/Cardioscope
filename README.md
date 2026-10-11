@@ -80,8 +80,9 @@ GitHub Pages serves static files; it cannot run the FastAPI app or load the
 trained models. Deploy the dashboard/viewer to Pages and the API to Render:
 
 1. In Render, create a Blueprint from this repository and use `render.yaml`.
-   Set `CORS_ORIGINS` to the Pages **origin** (scheme and host only), such as
-   `https://your-user.github.io`. For a custom domain, use that domain's origin.
+   It requests the Free web-service plan. Set `CORS_ORIGINS` to the Pages
+   **origin** (scheme and host only), such as `https://your-user.github.io`.
+   For a custom domain, use that domain's origin.
 2. After Render deploys, copy the service URL, such as
    `https://cardioscope-api.onrender.com`.
 3. In the GitHub repository, go to **Settings → Secrets and variables →
