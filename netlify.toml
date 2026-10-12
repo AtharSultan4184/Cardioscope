@@ -1,0 +1,6 @@
+[build]
+  command = "npm ci --prefix heart3d && npm --prefix heart3d run test:lib && node test_browser_model.mjs && npm --prefix heart3d run build && mkdir -p _site/models _site/heart3d && cp index.html browser-model.js _site/ && cp models/schema.json models/metrics.json models/browser_models.json _site/models/ && cp -R heart3d/dist/. _site/heart3d/"
+  publish = "_site"
+
+[build.environment]
+  NODE_VERSION = "22"

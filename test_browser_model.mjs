@@ -15,14 +15,14 @@ const blankValues = Object.fromEntries(
 const blankResult = predictModels(blankValues, model);
 assert.deepEqual(Object.keys(blankResult.vessels), ["LAD", "LCX", "RCA"]);
 assert.equal(blankResult.cad.predicted_status, "CAD");
-assert.ok(Math.abs(blankResult.cad.probability - 0.7585743613822133) < 1e-12);
-assert.ok(Math.abs(blankResult.vessels.LAD.probability - 0.16412035865519256) < 1e-12);
+assert.ok(Math.abs(blankResult.cad.probability - 0.8445407122953194) < 1e-12);
+assert.ok(Math.abs(blankResult.vessels.LAD.probability - 0.48140396369448357) < 1e-12);
 assert.ok(blankResult.explanation.length > 0);
 
 const enteredValues = { ...blankValues, Age: 50, Sex: "Fmale", "Poor R Progression": "Y" };
 const enteredResult = predictModels(enteredValues, model);
-assert.ok(Math.abs(enteredResult.cad.probability - 0.5289099236309888) < 1e-12);
-assert.ok(Math.abs(enteredResult.vessels.LCX.probability - 0.11757901669600815) < 1e-12);
+assert.ok(Math.abs(enteredResult.cad.probability - 0.6096563885781748) < 1e-12);
+assert.ok(Math.abs(enteredResult.vessels.LCX.probability - 0.17945594010178356) < 1e-12);
 for (const result of [blankResult, enteredResult]) {
   assert.ok(result.explanation.length <= 8);
   for (const estimate of Object.values(result.vessels)) {

@@ -74,24 +74,35 @@ Open <http://127.0.0.1:8000/>. The dashboard is the single entry point; the
 The viewer can also run standalone for UI development with `npm run dev` from
 `heart3d`; predictions are connected when it is embedded in the dashboard.
 
-## Free GitHub Pages deployment
+## Static deployment (GitHub Pages or Netlify)
 
-The dashboard, 3D viewer, and predictions run as static files on GitHub Pages.
+The dashboard, 3D viewer, and predictions run as static files.
 The four fitted logistic-regression models are exported to browser-readable
 weights, so visitors do not need a separate API service or a running computer.
 
-In **Settings → Pages**, select **GitHub Actions** as the deployment source.
-Push to `main` or run the Pages workflow manually. The workflow builds the
-viewer, tests the browser prediction code, and publishes all required static
-files.
+For **GitHub Pages**, select **GitHub Actions** in **Settings → Pages**.
+Push to `main` or run the Pages workflow manually.
+
+For **Netlify**, import the repository and deploy the desired branch. The
+included `netlify.toml` builds the 3D viewer, runs both test suites, and
+publishes the dashboard, browser model weights, schema, metrics, and viewer.
+The browser predictions do not use the Python API; Netlify's static hosting is
+enough for the current dashboard. Netlify uses `netlify.toml`; it does not use
+the Render deployment configuration.
 
 After retraining with `python train_model.py`, regenerate the static inference
 weights with `python export_browser_model.py`. The Pages workflow uses relative
 paths, so both user-site and project-site URLs work.
 
-`app.py` and `render.yaml` remain available for optional API hosting, but are
-not required for the free GitHub Pages deployment. Confirm that dataset and
-derived-artifact redistribution terms noted above permit public hosting.
+Confirm that dataset and derived-artifact redistribution terms noted above
+permit public hosting.
+
+## Optional Render API deployment
+
+The Python API is a separate service from the Netlify static site. Its Render
+configuration is in `render.yaml`, and its container setup is in `Dockerfile`.
+Deploy these through Render only if you need the FastAPI endpoints; the current
+dashboard's browser-based predictions do not depend on them.
 
 ## Architecture and files
 
