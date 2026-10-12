@@ -28,6 +28,77 @@ jobs:
           cache: npm
           cache-dependency-path: heart3d/package-lock.json
 
+      - name: Install viewer dependencies
+        working-directory: heart3d
+        run: npm ci
+
+      - name: Test viewer logic
+        working-directory: heart3d
+        run: npm run test:lib
+
+      - name: Test browser predictions
+        run: node test_browser_model.mjs
+
+      - name: Build viewer
+        working-directory: heart3d
+        run: npm run build
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p _site/heart3d _site/models
+          cp index.html browser-model.js _site/
+          cp models/schema.json models/metrics.json models/browser_models.json _site/models/
+          cp -R heart3d/dist/. _site/heart3d/
+          touch _site/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: heart3d/package-lock.json
+
       - name: Check API URL
         env:
           CARDIOSCOPE_API_URL: ${{ vars.CARDIOSCOPE_API_URL }}
